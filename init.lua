@@ -47,11 +47,6 @@ return {
       --   return true
       -- end
     },
-    -- enable servers that you already have installed without mason
-    servers = {
-      "pyright",
-      "phpactor",
-    },
   },
 
   -- Configure require("lazy").setup() options
