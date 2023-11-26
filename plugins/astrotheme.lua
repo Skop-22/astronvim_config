@@ -20,7 +20,7 @@ return {
     palettes = {
       global = {             -- Globally accessible palettes, theme palettes take priority.
         my_grey = "#b1faaf",
-        my_color = "#6F5FD1"
+        my_color = "#719996"
       },    
     },
     highlights = {
