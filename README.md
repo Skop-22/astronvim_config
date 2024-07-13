@@ -27,6 +27,9 @@ You can also just clone this repository directly if you do not want to track you
 git clone git@github.com:Skop-22/astronvim_config.git ~/.config/nvim
 ```
 
+```shell
+git clone https://github.com/Skop-22/astronvim_config.git ~/.config/nvim
+```
 #### Start Neovim
 
 ```shell
