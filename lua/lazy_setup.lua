@@ -12,6 +12,28 @@ require("lazy").setup({
   },
   { import = "community" },
   { import = "plugins" },
+  {
+    "adalessa/laravel.nvim",
+    dependencies = {
+      "nvim-telescope/telescope.nvim",
+      "tpope/vim-dotenv",
+      "MunifTanjim/nui.nvim",
+      "nvimtools/none-ls.nvim",
+    },
+    cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
+    keys = {
+      { "<leader>LA", ":Laravel artisan<cr>" },
+    },
+    event = { "VeryLazy" },
+    config = function()
+      require("laravel").setup({
+        command_options = {
+          ["make:model"] = { options = { "-mf" } },
+          -- Agrega más configuraciones de comandos aquí si es necesario
+        },
+      })
+    end,
+  },
 } --[[@as LazySpec]], {
   -- Configure any other `lazy.nvim` configuration options here
   install = { colorscheme = { "astrodark", "habamax" } },
