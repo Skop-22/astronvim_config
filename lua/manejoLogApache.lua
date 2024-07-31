@@ -18,3 +18,17 @@ end
 vim.api.nvim_create_user_command("LogApacheDate", function(opts)
   show_log_with_date(opts.args)
 end, { nargs = 1 })
+
+
+local function show_last_apache_log()
+  local log_file = "/var/log/apache2/access_api.log"
+  local handle = io.popen("tail -n 1 " .. log_file)
+  local last_line = handle:read("*a")
+  handle:close()
+
+  -- Mostrar el último registro como una notificación
+  vim.notify(last_line, "info", { title = "Último Registro de Apache" })
+end
+
+-- Crea el comando :logApache que llama a la función
+vim.api.nvim_create_user_command("LogApache", show_last_apache_log, {})
