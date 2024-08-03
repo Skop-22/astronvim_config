@@ -19,5 +19,4 @@ require "lazy_setup"
 require "polish"
 
 -- Cargar el archivo de comandos personalizado desde la carpeta lua/commands
-require "config"
 require "manejoLogApache"
