@@ -9,7 +9,7 @@ local function show_log_with_date(date)
 
   -- Mostrar el registro como una notificación
   if line == "" then
-    line = "No se encontraron registros con la fecha especificada."..date
+    line = "No se encontraron registros de: "..date
   end
   vim.notify(line, "info", { title = "Registro de Apache con Fecha" })
 end
