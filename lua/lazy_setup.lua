@@ -15,22 +15,29 @@ require("lazy").setup({
   {
     "adalessa/laravel.nvim",
     dependencies = {
-      "nvim-telescope/telescope.nvim",
       "tpope/vim-dotenv",
+      "nvim-telescope/telescope.nvim",
       "MunifTanjim/nui.nvim",
-      "nvimtools/none-ls.nvim",
+      "kevinhwang91/promise-async",
     },
-    cmd = { "Sail", "Artisan", "Composer", "Npm", "Yarn", "Laravel" },
+    cmd = { "Laravel", "Artisan", "Composer", "Npm", "Yarn", "Sail" },
     keys = {
       { "<leader>LA", ":Laravel artisan<cr>" },
-    },
+      { "<leader>LR", ":Laravel routes<cr>" },
+    },   
     event = { "VeryLazy" },
-    config = function()
+    opts = {
+      features = {
+        model_info = {
+          enable = true,
+        }
+      }
+    },
+    config = function ()
       require("laravel").setup({
         command_options = {
           ["make:model"] = { options = { "-mf" } },
-          -- Agrega más configuraciones de comandos aquí si es necesario
-        },
+        }
       })
     end,
   },
