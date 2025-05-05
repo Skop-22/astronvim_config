@@ -21,17 +21,9 @@ require("lazy").setup({
       -- your configuration comes here
       -- or leave it empty to use the default settings
       -- refer to the configuration section below
-      bigfile = { enabled = true },
-      dashboard = { enabled = true },
-      explorer = { enabled = true },
-      indent = { enabled = true },
-      input = { enabled = true },
-      picker = { enabled = true },
-      notifier = { enabled = true },
       quickfile = { enabled = true },
       scope = { enabled = true },
       scroll = { enabled = true },
-      statuscolumn = { enabled = true },
       words = { enabled = true },
     },
     init = function ()
@@ -51,27 +43,33 @@ require("lazy").setup({
       "MunifTanjim/nui.nvim",
       "kevinhwang91/promise-async",
     },
-    cmd = { "Laravel", "Artisan", "Composer", "Npm", "Yarn", "Sail" },
+    cmd = { "Laravel" },
     keys = {
       { "<leader>LA", ":Laravel artisan<cr>" },
       { "<leader>LR", ":Laravel routes<cr>" },
+      { "<leader>LM", ":Laravel related<cr>" },
     },
     event = { "VeryLazy" },
     opts = {
       features = {
+        route_info = {
+          enable = true,
+          view = "right",
+        },
         model_info = {
           enable = true,
-        }
-      }
+        },
+        override = {
+          enable = true,
+        },
+        pickers = {
+          enable = true,
+          provider = 'telescope',
+        },
+      },
     },
-    config = function ()
-      require("laravel").setup({
-        command_options = {
-          ["make:model"] = { options = { "-mf" } },
-        }
-      })
-    end,
-  },
+    config = true,
+  }
 } --[[@as LazySpec]], {
   -- Configure any other `lazy.nvim` configuration options here
   install = { colorscheme = { "astrodark", "habamax" } },
