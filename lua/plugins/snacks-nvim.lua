@@ -11,6 +11,7 @@ return {
     scope = { enabled = true },
     scroll = { enabled = true },
     words = { enabled = true },
+    picker = { enabled = true },
   },
   init = function ()
     vim.api.nvim_create_autocmd("User", {
