@@ -28,7 +28,7 @@ return {
       },
       pickers = {
         enable = true,
-        provider = "fzf-lua", -- "snacks | telescope | fzf-lua | ui-select"
+        provider = "telescope", -- "snacks | telescope | fzf-lua | ui-select"
       },
     },
   },
