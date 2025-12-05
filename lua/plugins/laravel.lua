@@ -19,6 +19,7 @@ return {
     { "<leader>Lc", function() Laravel.pickers.commands() end,             desc = "Laravel: Open Commands Picker" },
     { "<leader>Lo", function() Laravel.pickers.resources() end,            desc = "Laravel: Open Resources Picker" },
     { "<leader>Lp", function() Laravel.commands.run("command_center") end, desc = "Laravel: Open Command Center" },
+    { "<leader>Lto", function() Laravel.commands.run("tinker:open") end, desc = "Laravel: Open Command Center" },
   },
   event = { "VeryLazy" },
   opts = {
@@ -28,7 +29,7 @@ return {
       },
       pickers = {
         enable = true,
-        provider = "telescope", -- "snacks | telescope | fzf-lua | ui-select"
+        provider = "snacks", -- "snacks | telescope | fzf-lua | ui-select"
       },
     },
   },
