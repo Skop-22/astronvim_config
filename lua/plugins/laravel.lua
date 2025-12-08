@@ -19,7 +19,7 @@ return {
     { "<leader>Lc", function() Laravel.pickers.commands() end,             desc = "Laravel: Open Commands Picker" },
     { "<leader>Lo", function() Laravel.pickers.resources() end,            desc = "Laravel: Open Resources Picker" },
     { "<leader>Lp", function() Laravel.commands.run("command_center") end, desc = "Laravel: Open Command Center" },
-    { "<leader>Lto", function() Laravel.commands.run("tinker:open") end, desc = "Laravel: Open Command Center" },
+    { "<F4>", function() Laravel.commands.run("tinker:open") end, desc = "Laravel: Open command tinker open" },
   },
   event = { "VeryLazy" },
   opts = {
