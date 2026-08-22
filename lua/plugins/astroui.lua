@@ -1,99 +1,246 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
+-- if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
+
 -- AstroUI provides the basis for configuring the AstroNvim User Interface
 -- Configuration documentation can be found with `:h astroui`
 -- NOTE: We highly recommend setting up the Lua Language Server (`:LspInstall lua_ls`)
 --       as this provides autocomplete and documentation while editing
+
 ---@type LazySpec
 return {
-  "AstroNvim/astroui",
-  ---@type AstroUIOpts
-  opts = {
-    -- Colorscheme set on startup, a string that is used with `:colorscheme astrodark`
-    colorscheme = "astrolight",
-    -- Configure how folding works
-    folding = {
-      -- whether a buffer should have folding can be true/false for global enable/disable or fun(bufnr:integer):boolean
-      enabled = function(bufnr) return require("astrocore.buffer").is_valid(bufnr) end,
-      -- a priority list of fold methods to try using, available methods are "lsp", "treesitter", and "indent"
-      methods = { "lsp", "treesitter", "indent" },
-    },
-    -- Override highlights in any colorscheme
-    -- Keys can be:
-    --   `init`: table of highlights to apply to all colorschemes
-    --   `<colorscheme_name>` override highlights in the colorscheme with name: `<colorscheme_name>`
-    highlights = {
-      -- this table overrides highlights in all colorschemes
-      init = {
-        Normal = { bg = "#000000" },
+  {
+    "AstroNvim/astroui",
+    ---@type AstroUIOpts
+    opts = {
+      -- add new user interface icon
+      icons = {
+        VimIcon = "",
+        ScrollText = "",
+        GitBranch = "",
+        GitAdd = "",
+        GitChange = "",
+        GitDelete = "",
       },
-      -- a table of overrides/changes when applying astrotheme
-      astrotheme = {
-        Normal = { bg = "#000000" },
-      },
-    },
-    -- A table of icons in the UI using NERD fonts
-    icons = {
-      GitAdd = "",
-    },
-    -- A table of only text "icons" used when icons are disabled
-    text_icons = {
-      GitAdd = "[+]",
-    },
-    -- Configuration options for the AstroNvim lines and bars built with the `status` API.
-    status = {
-      -- Configure attributes of components defined in the `status` API. Check the AstroNvim documentation for a complete list of color names, this applies to colors that have `_fg` and/or `_bg` names with the suffix removed (ex. `git_branch_fg` as attributes from `git_branch`).
-      attributes = {
-        git_branch = { bold = true },
-      },
-      -- Configure colors of components defined in the `status` API. Check the AstroNvim documentation for a complete list of color names.
-      colors = {
-        git_branch_fg = "#ABCDEF",
-      },
-      -- Configure which icons that are highlighted based on context
-      icon_highlights = {
-        -- enable or disable breadcrumb icon highlighting
-        breadcrumbs = false,
-        -- Enable or disable the highlighting of filetype icons both in the statusline and tabline
-        file_icon = {
-          tabline = function(self) return self.is_active or self.is_visible end,
-          statusline = true,
+      -- modify variables used by heirline but not defined in the setup call directly
+      status = {
+        -- define the separators between each section
+        separators = {
+          left = { "", "" }, -- separator for the left side of the statusline
+          right = { " ", "" }, -- separator for the right side of the statusline
+          tab = { "", "" },
         },
-      },
-      -- Configure characters used as separators for various elements
-      separators = {
-        none = { "", "" },
-        left = { "", "  " },
-        right = { "  ", "" },
-        center = { "  ", "  " },
-        tab = { "", "" },
-        breadcrumbs = "  ",
-        path = "  ",
-      },
-      -- Configure enabling/disabling of winbar
-      winbar = {
-        enabled = { -- whitelist buffer patterns
-          filetype = { "gitsigns.blame" },
+        -- add new colors that can be used by heirline
+        colors = function(hl)
+          local get_hlgroup = require("astroui").get_hlgroup
+          -- use helper function to get highlight group properties
+          local comment_fg = get_hlgroup("Comment").fg
+          hl.git_branch_fg = comment_fg
+          hl.git_added = comment_fg
+          hl.git_changed = comment_fg
+          hl.git_removed = comment_fg
+          hl.blank_bg = get_hlgroup("Folded").fg
+          hl.file_info_bg = get_hlgroup("Visual").bg
+          hl.nav_icon_bg = get_hlgroup("String").fg
+          hl.nav_fg = hl.nav_icon_bg
+          hl.folder_icon_bg = get_hlgroup("Error").fg
+          return hl
+        end,
+        attributes = {
+          mode = { bold = true },
         },
-        disabled = { -- blacklist buffer patterns
-          buftype = { "nofile", "terminal" },
+        icon_highlights = {
+          file_icon = {
+            statusline = false,
+          },
         },
       },
     },
-    -- Configure theming of Lazygit, set to `false` to disable
-    lazygit = {
-      theme_path = vim.fs.normalize(vim.fn.stdpath "cache" .. "/lazygit-theme.yml"),
-      theme = {
-        [241] = { fg = "Special" },
-        activeBorderColor = { fg = "MatchParen", bold = true },
-        cherryPickedCommitBgColor = { fg = "Identifier" },
-        cherryPickedCommitFgColor = { fg = "Function" },
-        defaultFgColor = { fg = "Normal" },
-        inactiveBorderColor = { fg = "FloatBorder" },
-        optionsTextColor = { fg = "Function" },
-        searchingActiveBorderColor = { fg = "MatchParen", bold = true },
-        selectedLineBgColor = { bg = "Visual" },
-        unstagedChangesColor = { fg = "DiagnosticError" },
-      },
-    },
+  },
+  {
+    "rebelot/heirline.nvim",
+    opts = function(_, opts)
+      local status = require("astroui.status")
+      opts.statusline = {
+        -- default highlight for the entire statusline
+        hl = { fg = "fg", bg = "bg" },
+        -- each element following is a component in astroui.status module
+
+        -- add the vim mode component
+        status.component.mode({
+          -- enable mode text with padding as well as an icon before it
+          mode_text = {
+            icon = { kind = "VimIcon", padding = { right = 1, left = 1 } },
+          },
+          -- surround the component with a separators
+          surround = {
+            -- it's a left element, so use the left separator
+            separator = "left",
+            -- set the color of the surrounding based on the current mode using astronvim.utils.status module
+            color = function()
+              return { main = status.hl.mode_bg(), right = "blank_bg" }
+            end,
+          },
+        }),
+        -- we want an empty space here so we can use the component builder to make a new section with just an empty string
+        status.component.builder({
+          { provider = "" },
+          -- define the surrounding separator and colors to be used inside of the component
+          -- and the color to the right of the separated out section
+          surround = {
+            separator = "left",
+            color = { main = "blank_bg", right = "file_info_bg" },
+          },
+        }),
+        -- add a section for the currently opened file information
+        -- Archivo actual
+        status.component.file_info({
+          filename = { fallback = "Empty" },
+          filetype = false,
+          file_read_only = false,
+          padding = { right = 1 },
+
+          surround = {
+            separator = "left",
+            condition = false,
+          },
+        }),
+
+        -- ============================================================
+        -- PHP / LARAVEL
+        -- ============================================================
+        status.component.builder({
+          {
+            -- BLOQUE LARAVEL (Icono Rojo + Versión Roja)
+            provider = function()
+              if not _G.Laravel or not _G.Laravel.app then return "" end
+              
+              local ok, v = pcall(function() return Laravel.app("status"):get("laravel") end)
+              
+              if ok and v and v ~= false and tostring(v) ~= "" then
+                -- Cambiado a "   " para asegurar que tu terminal lo pueda dibujar
+                return "  󰫐 " .. tostring(v)
+              end
+              return "" 
+            end,
+            hl = { fg = "#F55247" }, 
+          },
+          {
+            -- BLOQUE PHP (Separador + Icono + Versión)
+            provider = function()
+              if not _G.Laravel or not _G.Laravel.app then return "" end
+              
+              local ok, v = pcall(function() return Laravel.app("status"):get("php") end)
+              if ok and v and v ~= false and tostring(v) ~= "" then
+                return "   " .. tostring(v)..' '
+              end
+              return "" 
+            end,
+            hl = { fg = "#AEB2D5" }, 
+          },
+        }),
+
+        -- add a component for the current git branch if it exists and use no separator for the sections
+        status.component.git_branch({
+          git_branch = { padding = { left = 1 } },
+          surround = { separator = "none" },
+        }),
+        -- add a component for the current git diff if it exists and use no separator for the sections
+        status.component.git_diff({
+          padding = { left = 1 },
+          surround = { separator = "none" },
+        }),
+        -- fill the rest of the statusline
+        -- the elements after this will appear in the middle of the statusline
+        status.component.fill(),
+        -- add a component to display if the LSP is loading, disable showing running client names, and use no separator
+        status.component.lsp({
+          lsp_client_names = false,
+          surround = { separator = "none", color = "bg" },
+        }),
+        -- fill the rest of the statusline
+        -- the elements after this will appear on the right of the statusline
+        status.component.fill(),
+
+        
+        -- Añadimos un espacio plano explícito para que los errores/warnings no se peguen a tu pastilla
+        status.component.builder({
+          { provider = "  " },
+          surround = { separator = "none", color = "bg" }
+        }),
+        -- =====================================================================
+
+        -- add a component for the current diagnostics if it exists and use the right separator for the section
+        status.component.diagnostics({ surround = { separator = "right" } }),
+        -- add a component to display LSP clients, disable showing LSP progress, and use the right separator
+        status.component.lsp({
+          lsp_progress = false,
+          surround = { separator = "right" },
+        }),
+        -- NvChad has some nice icons to go along with information, so we can create a parent component to do this
+        -- all of the children of this table will be treated together as a single component
+        {
+          -- define a simple component where the provider is just a folder icon
+          status.component.builder({
+            -- astronvim.get_icon gets the user interface icon for a closed folder with a space after it
+            { provider = require("astroui").get_icon("FolderClosed") },
+            -- add padding after icon
+            padding = { right = 1 },
+            -- set the foreground color to be used for the icon
+            hl = { fg = "bg" },
+            -- use the right separator and define the background color
+            surround = { separator = "right", color = "folder_icon_bg" },
+          }),
+          -- add a file information component and only show the current working directory name
+          status.component.file_info({
+            -- we only want filename to be used and we can change the fname
+            -- function to get the current working directory name
+            filename = {
+              fname = function(nr)
+                return vim.fn.getcwd(nr)
+              end,
+              padding = { left = 1 },
+            },
+            -- disable all other elements of the file_info component
+            filetype = false,
+            file_icon = false,
+            file_modified = false,
+            file_read_only = false,
+            -- use no separator for this part but define a background color
+            surround = {
+              separator = "none",
+              color = "file_info_bg",
+              condition = false,
+            },
+          }),
+        },
+        -- the final component of the NvChad statusline is the navigation section
+        -- this is very similar to the previous current working directory section with the icon
+        { -- make nav section with icon border
+          -- define a custom component with just a file icon
+          status.component.builder({
+            { provider = require("astroui").get_icon("ScrollText") },
+            -- add padding after icon
+            padding = { right = 1 },
+            -- set the icon foreground
+            hl = { fg = "bg" },
+            -- use the right separator and define the background color
+            -- as well as the color to the left of the separator
+            surround = {
+              separator = "right",
+              color = { main = "nav_icon_bg", left = "file_info_bg" },
+            },
+          }),
+          -- add a navigation component and just display the percentage of progress in the file
+          status.component.nav({
+            -- add some padding for the percentage provider
+            percentage = { padding = { right = 1 } },
+            -- disable all other providers
+            ruler = false,
+            scrollbar = false,
+            -- use no separator and define the background color
+            surround = { separator = "none", color = "file_info_bg" },
+          }),
+        },
+      }
+    end,
   },
 }
