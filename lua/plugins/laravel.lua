@@ -28,4 +28,65 @@ return {
       },
     },
   },
+  config = function(_, opts)
+    require("laravel").setup(opts)
+
+    local nio = require("nio")
+    local app = require("laravel.core.app")
+
+    local artisan_commands = {}
+
+    -- Crear función async para cargar Artisan
+    local load_artisan = nio.create(function()
+      local loader = app("laravel.loaders.artisan_loader")
+
+      local commands, err = loader:load()
+
+      if err then
+        vim.notify(
+          "Error cargando comandos Artisan: " .. tostring(err),
+          vim.log.levels.ERROR
+        )
+        return
+      end
+
+      artisan_commands = vim.tbl_map(function(command)
+        return command.name
+      end, commands)
+    end)
+
+    load_artisan()
+
+    vim.api.nvim_create_user_command("Laravel", function(opts)
+      Laravel.run(opts.args)
+    end, {
+      nargs = "+",
+
+      complete = function(ArgLead, CmdLine, CursorPos)
+        local partes = vim.split(CmdLine, "%s+")
+
+        -- :Laravel <TAB>
+        if #partes == 2 then
+          return vim.iter({
+            "artisan",
+          })
+            :filter(function(name)
+              return vim.startswith(name, ArgLead)
+            end)
+            :totable()
+        end
+
+        -- :Laravel artisan <TAB>
+        if partes[2] == "artisan" then
+          return vim.iter(artisan_commands)
+            :filter(function(name)
+              return vim.startswith(name, ArgLead)
+            end)
+            :totable()
+        end
+
+        return {}
+      end,
+    })
+  end,
 }
