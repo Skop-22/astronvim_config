@@ -39,12 +39,51 @@ return {
     },
     -- enable servers that you already have installed without mason
     servers = {
-      -- "pyright"
+      "vue_ls",
+      "vtsls",
     },
     -- customize language server configuration passed to `vim.lsp.config`
     -- client specific configuration can also go in `lsp/` in your configuration root (see `:h lsp-config`)
     config = {
       -- ["*"] = { capabilities = {} }, -- modify default LSP client settings such as capabilities
+      
+      -- Configuración específica para optimizar vtsls con Vue
+      vtsls = {
+        filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
+        settings = {
+          vtsls = {
+            tsserver = {
+              globalPlugins = {
+                {
+                  name = "@vue/typescript-plugin",
+                  location = require("lspconfig.util").path.join(
+                    vim.fn.stdpath("data"),
+                    "mason",
+                    "packages",
+                    "vue-language-server",
+                    "node_modules",
+                    "@vue",
+                    "language-server"
+                  ),
+                  languages = { "vue" },
+                  configNamespace = "typescript",
+                  enableForWorkspaceTypeScriptVersions = true,
+                },
+              },
+            },
+          },
+        },
+      },
+      
+      -- Configuración para dejar a vue_ls libre de procesar TypeScript pesado
+      vue_ls = {
+        filetypes = { "vue" },
+        init_options = {
+          vue = {
+            hybridMode = true,
+          },
+        },
+      },
     },
     -- customize how language servers are attached
     handlers = {
