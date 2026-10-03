@@ -1,9 +1,4 @@
--- if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
--- AstroUI provides the basis for configuring the AstroNvim User Interface
--- Configuration documentation can be found with `:h astroui`
--- NOTE: We highly recommend setting up the Lua Language Server (`:LspInstall lua_ls`)
---       as this provides autocomplete and documentation while editing
+--if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
 
 ---@type LazySpec
 return {
@@ -11,7 +6,9 @@ return {
     "AstroNvim/astroui",
     ---@type AstroUIOpts
     opts = {
-      -- add new user interface icon
+      -- ============================================================
+      -- ICONOS
+      -- ============================================================
       icons = {
         VimIcon = "",
         ScrollText = "",
@@ -20,33 +17,42 @@ return {
         GitChange = "",
         GitDelete = "",
       },
-      -- modify variables used by heirline but not defined in the setup call directly
+
+      -- ============================================================
+      -- STATUSLINE
+      -- ============================================================
       status = {
-        -- define the separators between each section
         separators = {
-          left = { "", "" }, -- separator for the left side of the statusline
-          right = { " ", "" }, -- separator for the right side of the statusline
+          left = { "", "" },
+          right = { " ", "" },
           tab = { "", "" },
         },
-        -- add new colors that can be used by heirline
+
         colors = function(hl)
           local get_hlgroup = require("astroui").get_hlgroup
-          -- use helper function to get highlight group properties
+
           local comment_fg = get_hlgroup("Comment").fg
+
           hl.git_branch_fg = comment_fg
           hl.git_added = comment_fg
           hl.git_changed = comment_fg
           hl.git_removed = comment_fg
+
           hl.blank_bg = get_hlgroup("Folded").fg
           hl.file_info_bg = get_hlgroup("Visual").bg
           hl.nav_icon_bg = get_hlgroup("String").fg
           hl.nav_fg = hl.nav_icon_bg
           hl.folder_icon_bg = get_hlgroup("Error").fg
+
           return hl
         end,
+
         attributes = {
-          mode = { bold = true },
+          mode = {
+            bold = true,
+          },
         },
+
         icon_highlights = {
           file_icon = {
             statusline = false,
@@ -55,48 +61,67 @@ return {
       },
     },
   },
+
   {
     "rebelot/heirline.nvim",
+
     opts = function(_, opts)
       local status = require("astroui.status")
-      opts.statusline = {
-        -- default highlight for the entire statusline
-        hl = { fg = "fg", bg = "bg" },
-        -- each element following is a component in astroui.status module
 
-        -- add the vim mode component
+      opts.statusline = {
+        hl = {
+          fg = "fg",
+          bg = "bg",
+        },
+
         status.component.mode({
-          -- enable mode text with padding as well as an icon before it
           mode_text = {
-            icon = { kind = "VimIcon", padding = { right = 1, left = 1 } },
+            icon = {
+              kind = "VimIcon",
+              padding = {
+                right = 1,
+                left = 1,
+              },
+            },
           },
-          -- surround the component with a separators
+
           surround = {
-            -- it's a left element, so use the left separator
             separator = "left",
-            -- set the color of the surrounding based on the current mode using astronvim.utils.status module
+
             color = function()
-              return { main = status.hl.mode_bg(), right = "blank_bg" }
+              return {
+                main = status.hl.mode_bg(),
+                right = "blank_bg",
+              }
             end,
           },
         }),
-        -- we want an empty space here so we can use the component builder to make a new section with just an empty string
+
         status.component.builder({
-          { provider = "" },
-          -- define the surrounding separator and colors to be used inside of the component
-          -- and the color to the right of the separated out section
+          {
+            provider = "",
+          },
+
           surround = {
             separator = "left",
-            color = { main = "blank_bg", right = "file_info_bg" },
+            color = {
+              main = "blank_bg",
+              right = "file_info_bg",
+            },
           },
         }),
-        -- add a section for the currently opened file information
-        -- Archivo actual
+
         status.component.file_info({
-          filename = { fallback = "Empty" },
+          filename = {
+            fallback = "Empty",
+          },
+
           filetype = false,
           file_read_only = false,
-          padding = { right = 1 },
+
+          padding = {
+            right = 1,
+          },
 
           surround = {
             separator = "left",
@@ -104,107 +129,185 @@ return {
           },
         }),
 
-        -- ============================================================
-        -- PHP / LARAVEL
-        -- ============================================================
+        -- ==========================================================
+        -- LARAVEL / PHP
+        -- ==========================================================
         status.component.builder({
+
+          -- --------------------------------------------------------
+          -- LARAVEL
+          -- --------------------------------------------------------
           {
-            -- BLOQUE LARAVEL (Icono Rojo + Versión Roja)
             provider = function()
-              if not _G.Laravel or not _G.Laravel.app then return "" end
-              
-              local ok, v = pcall(function() return Laravel.app("status"):get("laravel") end)
-              
-              if ok and v and v ~= false and tostring(v) ~= "" then
-                -- Cambiado a "   " para asegurar que tu terminal lo pueda dibujar
-                return "  󰫐 " .. tostring(v)
+              if not _G.Laravel or not _G.Laravel.app then
+                return ""
               end
-              return "" 
+
+              local ok, version = pcall(function()
+                return Laravel.app("status"):get("laravel")
+              end)
+
+              if ok and version and version ~= false and tostring(version) ~= "" then
+                return "  󰫐 " .. tostring(version)
+              end
+
+              return ""
             end,
-            hl = { fg = "#F55247" }, 
+
+            hl = {
+              fg = "#F55247",
+            },
           },
+
+          -- --------------------------------------------------------
+          -- PHP
+          -- --------------------------------------------------------
           {
-            -- BLOQUE PHP (Separador + Icono + Versión)
             provider = function()
-              if not _G.Laravel or not _G.Laravel.app then return "" end
-              
-              local ok, v = pcall(function() return Laravel.app("status"):get("php") end)
-              if ok and v and v ~= false and tostring(v) ~= "" then
-                return "   " .. tostring(v)..' '
+              if not _G.Laravel or not _G.Laravel.app then
+                return ""
               end
-              return "" 
+
+              local ok, version = pcall(function()
+                return Laravel.app("status"):get("php")
+              end)
+
+              if ok and version and version ~= false and tostring(version) ~= "" then
+                return "   " .. tostring(version) .. " "
+              end
+
+              return ""
             end,
-            hl = { fg = "#AEB2D5" }, 
+
+            hl = {
+              fg = "#AEB2D5",
+            },
           },
         }),
 
-        -- add a component for the current git branch if it exists and use no separator for the sections
+        -- ==========================================================
+        -- GIT BRANCH
+        -- ==========================================================
         status.component.git_branch({
-          git_branch = { padding = { left = 1 } },
-          surround = { separator = "none" },
+          git_branch = {
+            padding = {
+              left = 1,
+            },
+          },
+
+          surround = {
+            separator = "none",
+          },
         }),
-        -- add a component for the current git diff if it exists and use no separator for the sections
+
+        -- ==========================================================
+        -- GIT DIFF
+        -- ==========================================================
         status.component.git_diff({
-          padding = { left = 1 },
-          surround = { separator = "none" },
+          padding = {
+            left = 1,
+          },
+
+          surround = {
+            separator = "none",
+          },
         }),
-        -- fill the rest of the statusline
-        -- the elements after this will appear in the middle of the statusline
+
+        -- ==========================================================
+        -- ESPACIO CENTRAL
+        -- ==========================================================
         status.component.fill(),
-        -- add a component to display if the LSP is loading, disable showing running client names, and use no separator
+
+        -- ==========================================================
+        -- LSP
+        -- ==========================================================
         status.component.lsp({
           lsp_client_names = false,
-          surround = { separator = "none", color = "bg" },
+
+          surround = {
+            separator = "none",
+            color = "bg",
+          },
         }),
-        -- fill the rest of the statusline
-        -- the elements after this will appear on the right of the statusline
+
+        -- ==========================================================
+        -- ESPACIO
+        -- ==========================================================
         status.component.fill(),
 
-        
-        -- Añadimos un espacio plano explícito para que los errores/warnings no se peguen a tu pastilla
+        -- ==========================================================
+        -- ESPACIO ANTES DE DIAGNÓSTICOS
+        -- ==========================================================
         status.component.builder({
-          { provider = "  " },
-          surround = { separator = "none", color = "bg" }
-        }),
-        -- =====================================================================
+          {
+            provider = "  ",
+          },
 
-        -- add a component for the current diagnostics if it exists and use the right separator for the section
-        status.component.diagnostics({ surround = { separator = "right" } }),
-        -- add a component to display LSP clients, disable showing LSP progress, and use the right separator
+          surround = {
+            separator = "none",
+            color = "bg",
+          },
+        }),
+
+        -- ==========================================================
+        -- DIAGNÓSTICOS
+        -- ==========================================================
+        status.component.diagnostics({
+          surround = {
+            separator = "right",
+          },
+        }),
+
+        -- ==========================================================
+        -- LSP
+        -- ==========================================================
         status.component.lsp({
           lsp_progress = false,
-          surround = { separator = "right" },
+
+          surround = {
+            separator = "right",
+          },
         }),
-        -- NvChad has some nice icons to go along with information, so we can create a parent component to do this
-        -- all of the children of this table will be treated together as a single component
+
+        -- ==========================================================
+        -- DIRECTORIO ACTUAL
+        -- ==========================================================
         {
-          -- define a simple component where the provider is just a folder icon
           status.component.builder({
-            -- astronvim.get_icon gets the user interface icon for a closed folder with a space after it
-            { provider = require("astroui").get_icon("FolderClosed") },
-            -- add padding after icon
-            padding = { right = 1 },
-            -- set the foreground color to be used for the icon
-            hl = { fg = "bg" },
-            -- use the right separator and define the background color
-            surround = { separator = "right", color = "folder_icon_bg" },
+            {
+              provider = require("astroui").get_icon("FolderClosed"),
+            },
+
+            padding = {
+              right = 1,
+            },
+
+            hl = {
+              fg = "bg",
+            },
+
+            surround = {
+              separator = "right",
+              color = "folder_icon_bg",
+            },
           }),
-          -- add a file information component and only show the current working directory name
+
           status.component.file_info({
-            -- we only want filename to be used and we can change the fname
-            -- function to get the current working directory name
             filename = {
               fname = function(nr)
                 return vim.fn.getcwd(nr)
               end,
-              padding = { left = 1 },
+
+              padding = {
+                left = 1,
+              },
             },
-            -- disable all other elements of the file_info component
+
             filetype = false,
             file_icon = false,
             file_modified = false,
             file_read_only = false,
-            -- use no separator for this part but define a background color
+
             surround = {
               separator = "none",
               color = "file_info_bg",
@@ -212,32 +315,44 @@ return {
             },
           }),
         },
-        -- the final component of the NvChad statusline is the navigation section
-        -- this is very similar to the previous current working directory section with the icon
-        { -- make nav section with icon border
-          -- define a custom component with just a file icon
+
+        {
           status.component.builder({
-            { provider = require("astroui").get_icon("ScrollText") },
-            -- add padding after icon
-            padding = { right = 1 },
-            -- set the icon foreground
-            hl = { fg = "bg" },
-            -- use the right separator and define the background color
-            -- as well as the color to the left of the separator
+            {
+              provider = require("astroui").get_icon("ScrollText"),
+            },
+
+            padding = {
+              right = 1,
+            },
+
+            hl = {
+              fg = "bg",
+            },
+
             surround = {
               separator = "right",
-              color = { main = "nav_icon_bg", left = "file_info_bg" },
+              color = {
+                main = "nav_icon_bg",
+                left = "file_info_bg",
+              },
             },
           }),
-          -- add a navigation component and just display the percentage of progress in the file
+
           status.component.nav({
-            -- add some padding for the percentage provider
-            percentage = { padding = { right = 1 } },
-            -- disable all other providers
+            percentage = {
+              padding = {
+                right = 1,
+              },
+            },
+
             ruler = false,
             scrollbar = false,
-            -- use no separator and define the background color
-            surround = { separator = "none", color = "file_info_bg" },
+
+            surround = {
+              separator = "none",
+              color = "file_info_bg",
+            },
           }),
         },
       }

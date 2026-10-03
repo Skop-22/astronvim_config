@@ -1,4 +1,4 @@
--- if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
+if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
 
 -- AstroLSP allows you to customize the features in AstroNvim's LSP configuration engine
 -- Configuration documentation can be found with `:h astrolsp`
@@ -41,12 +41,13 @@ return {
     servers = {
       "vue_ls",
       "vtsls",
+      -- "pyright"
     },
     -- customize language server configuration passed to `vim.lsp.config`
     -- client specific configuration can also go in `lsp/` in your configuration root (see `:h lsp-config`)
     config = {
       -- ["*"] = { capabilities = {} }, -- modify default LSP client settings such as capabilities
-      
+
       -- Configuración específica para optimizar vtsls con Vue
       vtsls = {
         filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
@@ -84,6 +85,7 @@ return {
           },
         },
       },
+
     },
     -- customize how language servers are attached
     handlers = {
